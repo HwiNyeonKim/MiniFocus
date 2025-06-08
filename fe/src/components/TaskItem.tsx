@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Task } from "../types/task";
 
 interface Props {
@@ -50,9 +50,9 @@ export default function TaskItem({ task, onToggleComplete, onDelete, onEdit }: P
       {task.tags && task.tags.map(tag => (
         <span key={tag} className="ml-1 px-2 py-0.5 bg-gray-200 rounded text-xs">{tag}</span>
       ))}
-      {task.dueDate && (
+      {task.due_date && (
         <span className="ml-2 text-xs text-gray-500">
-          {new Date(task.dueDate).toLocaleDateString()}
+          {new Date(task.due_date).toLocaleDateString()}
         </span>
       )}
       <button

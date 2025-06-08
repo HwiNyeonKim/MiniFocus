@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import type { Task } from "../types/task";
 import TaskItem from "./TaskItem";
 
@@ -8,7 +8,7 @@ interface Props {
   onAddTask: (title: string, dueDate?: string) => void;
   onDeleteTask: (id: string) => void;
   onEditTask: (id: string, title: string) => void;
-  addTaskInputRef?: React.RefObject<HTMLInputElement>;
+  addTaskInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export default function TaskList({

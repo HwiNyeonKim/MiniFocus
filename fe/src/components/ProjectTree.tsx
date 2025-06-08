@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Project } from "../types/project";
 
+interface TreeProject extends Project {
+    children?: TreeProject[];
+}
+
 interface Props {
-    projects: Project[];
+    projects: TreeProject[];
     onSelect: (projectId: string) => void;
     selectedId: string;
     onAdd: (parentId: string | null) => void;
@@ -19,7 +23,7 @@ function ProjectNode({
     onEdit,
     level = 0,
 }: {
-    project: Project;
+    project: TreeProject;
     onSelect: (id: string) => void;
     selectedId: string;
     onAdd: (parentId: string) => void;
@@ -88,9 +92,9 @@ function ProjectNode({
                     ×
                 </button>
             </div>
-            {project.children && (
+            {project.children && project.children.length > 0 && (
                 <ul>
-                    {project.children.map((child) => (
+                    {project.children.map(child => (
                         <ProjectNode
                             key={child.id}
                             project={child}

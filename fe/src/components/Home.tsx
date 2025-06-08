@@ -1,131 +1,149 @@
-import React, { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import ProjectTree from "./ProjectTree";
 import TaskList from "./TaskList";
 import Toolbar from "./Toolbar";
 import type { Project } from "../types/project";
 import type { Task } from "../types/task";
-
-// 더미 데이터
-const initialProjects: Project[] = [
-  {
-    id: "1",
-    name: "Work",
-    children: [
-      { id: "2", name: "Subproject" },
-      {
-        id: "4",
-        name: "Deep Project",
-        children: [{ id: "5", name: "Very Deep" }],
-      },
-    ],
-  },
-  { id: "3", name: "Personal" },
-];
-const initialTasks: Task[] = [
-  { id: "t1", projectId: "1", title: "Sample Task 1", completed: false, flagged: true, tags: ["Office"], dueDate: "2024-06-10" },
-  { id: "t2", projectId: "2", title: "Subproject Task", completed: false, tags: ["Sub"], dueDate: "2024-06-12" },
-  { id: "t3", projectId: "3", title: "Personal Task", completed: true, tags: ["Home"] },
-];
+import {
+  fetchProjects,
+  createProject,
+  updateProject,
+  deleteProject,
+  fetchItems,
+  createItem,
+  updateItem,
+  deleteItem,
+} from "../services/api";
+import { buildProjectTree } from "../../tree";
 
 export default function Home() {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
-  const [selectedProject, setSelectedProject] = useState("1");
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string>("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const addTaskInputRef = useRef<HTMLInputElement>(null);
 
-  const handleToggleComplete = (id: string) => {
-    setTasks(tasks =>
-      tasks.map(t =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-      )
-    );
-  };
+  // 프로젝트/할 일 불러오기
+  useEffect(() => {
+    setLoading(true);
+    fetchProjects()
+      .then((data) => {
+        setProjects(data);
+        if (data.length > 0) setSelectedProject(data[0].id);
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const handleAddTask = (title: string, dueDate?: string) => {
-    setTasks(tasks => [
-      ...tasks,
-      {
-        id: Math.random().toString(36).slice(2),
-        projectId: selectedProject,
-        title,
-        completed: false,
-        dueDate,
-      },
-    ]);
-    setTimeout(() => addTaskInputRef.current?.focus(), 0);
-  };
+  useEffect(() => {
+    if (!selectedProject) return;
+    setLoading(true);
+    fetchItems(selectedProject)
+      .then(setTasks)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [selectedProject]);
 
-  const handleDeleteTask = (id: string) => {
-    setTasks(tasks => tasks.filter(t => t.id !== id));
-  };
+  // 5분마다 동기화
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!selectedProject) return;
+      fetchProjects().then(setProjects);
+      fetchItems(selectedProject).then(setTasks);
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [selectedProject]);
 
-  const handleEditTask = (id: string, title: string) => {
-    setTasks(tasks =>
-      tasks.map(t =>
-        t.id === id ? { ...t, title } : t
-      )
-    );
-  };
-
-  // 프로젝트 추가
-  const handleAddProject = (parentId: string | null) => {
-    const newId = Math.random().toString(36).slice(2);
-    const newProject: Project = { id: newId, name: "New Project" };
-
-    function addToTree(nodes: Project[]): Project[] {
-      return nodes.map(node => {
-        if (node.id === parentId) {
-          return {
-            ...node,
-            children: node.children ? [...node.children, newProject] : [newProject],
-          };
-        }
-        if (node.children) {
-          return { ...node, children: addToTree(node.children) };
-        }
-        return node;
-      });
+  // 프로젝트 추가/수정/삭제
+  const handleAddProject = async (parentId: string | null) => {
+    const name = window.prompt("새 프로젝트 이름을 입력하세요", "New Project");
+    if (!name) return;
+    try {
+      const newProject = await createProject({ name, parent_id: parentId ?? undefined });
+      setProjects((prev) => [...prev, newProject]);
+      setSelectedProject(newProject.id);
+    } catch (e: any) {
+      setError(e.message);
     }
-
-    if (parentId) {
-      setProjects(prev => addToTree(prev));
-    } else {
-      setProjects(prev => [...prev, newProject]);
-    }
-    setSelectedProject(newId);
   };
 
-  // 프로젝트 삭제
-  const handleDeleteProject = (id: string) => {
-    function removeFromTree(nodes: Project[]): Project[] {
-      return nodes
-        .filter(node => node.id !== id)
-        .map(node =>
-          node.children
-            ? { ...node, children: removeFromTree(node.children) }
-            : node
-        );
+  const handleDeleteProject = async (id: string) => {
+    if (!window.confirm("정말로 이 프로젝트를 삭제하시겠습니까?")) return;
+    try {
+      await deleteProject(id);
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+      if (selectedProject === id) setSelectedProject("");
+    } catch (e: any) {
+      setError(e.message);
     }
-    setProjects(prev => removeFromTree(prev));
-    if (selectedProject === id) setSelectedProject("");
   };
 
-  // 프로젝트 이름 수정
-  const handleEditProject = (id: string, name: string) => {
-    function editInTree(nodes: Project[]): Project[] {
-      return nodes.map(node => {
-        if (node.id === id) return { ...node, name };
-        if (node.children) return { ...node, children: editInTree(node.children) };
-        return node;
-      });
+  const handleEditProject = async (id: string, name: string) => {
+    try {
+      const updated = await updateProject(id, { name });
+      setProjects((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, name: updated.name } : p))
+      );
+    } catch (e: any) {
+      setError(e.message);
     }
-    setProjects(prev => editInTree(prev));
+  };
+
+  // 할 일 추가/수정/삭제
+  const handleAddTask = async (title: string, dueDate?: string) => {
+    if (!selectedProject) return;
+    try {
+      const newTask = await createItem(selectedProject, { title, due_date: dueDate });
+      setTasks((prev) => [...prev, newTask]);
+      setTimeout(() => addTaskInputRef.current?.focus(), 0);
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    if (!selectedProject) return;
+    try {
+      await deleteItem(selectedProject, id);
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+
+  const handleEditTask = async (id: string, title: string) => {
+    if (!selectedProject) return;
+    try {
+      const updated = await updateItem(selectedProject, id, { title });
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, title: updated.title } : t))
+      );
+    } catch (e: any) {
+      setError(e.message);
+    }
+  };
+
+  const handleToggleComplete = async (id: string) => {
+    if (!selectedProject) return;
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+    try {
+      const updated = await updateItem(selectedProject, id, { completed: !task.completed });
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, completed: updated.completed } : t))
+      );
+    } catch (e: any) {
+      setError(e.message);
+    }
   };
 
   // 툴바에서 +Task 클릭 시 입력창 포커스
   const handleToolbarAddTask = () => {
     addTaskInputRef.current?.focus();
   };
+
+  const treeProjects = buildProjectTree(projects);
 
   return (
     <div className="h-screen flex flex-col">
@@ -135,7 +153,7 @@ export default function Home() {
       />
       <div className="flex flex-1">
         <ProjectTree
-          projects={projects}
+          projects={treeProjects}
           onSelect={setSelectedProject}
           selectedId={selectedProject}
           onAdd={handleAddProject}
@@ -143,7 +161,7 @@ export default function Home() {
           onEdit={handleEditProject}
         />
         <TaskList
-          tasks={tasks.filter(t => t.projectId === selectedProject)}
+          tasks={tasks}
           onToggleComplete={handleToggleComplete}
           onAddTask={handleAddTask}
           onDeleteTask={handleDeleteTask}
@@ -151,6 +169,8 @@ export default function Home() {
           addTaskInputRef={addTaskInputRef}
         />
       </div>
+      {loading && <div className="fixed bottom-4 right-4 bg-gray-200 px-4 py-2 rounded shadow">Loading...</div>}
+      {error && <div className="fixed bottom-4 left-4 bg-red-200 px-4 py-2 rounded shadow">{error}</div>}
     </div>
   );
 }
