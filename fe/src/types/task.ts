@@ -1,10 +1,10 @@
 export interface Task {
   id: string;
-  projectId: string;
+  project_id: string;
   title: string;
   completed: boolean;
   flagged?: boolean;
   tags?: string[];
-  dueDate?: string;  // YYYY-MM-DD
-  children?: Task[];
+  due_date?: string;  // YYYY-MM-DD
+  parent_id?: string;
 }

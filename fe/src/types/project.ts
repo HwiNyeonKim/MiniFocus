@@ -1,5 +1,5 @@
 export interface Project {
   id: string;
   name: string;
-  children?: Project[];
+  parent_id?: string;
 }
