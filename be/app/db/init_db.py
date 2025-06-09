@@ -18,6 +18,8 @@ async def create_inbox_project(db: AsyncSession) -> None:
     inbox = result.scalar_one_or_none()
 
     if not inbox:
-        inbox = Project(name="Inbox", description="Default inbox project")
+        inbox = Project(
+            name="Inbox", description="Default inbox project", is_inbox=True
+        )
         db.add(inbox)
         await db.commit()

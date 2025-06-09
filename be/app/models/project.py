@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import Integer, String
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
@@ -30,6 +30,7 @@ class Project(Base):
         onupdate=datetime.utcnow,
         nullable=False,
     )
+    parent_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
 
     # Relationships
     action_items = relationship("ActionItem", back_populates="project")

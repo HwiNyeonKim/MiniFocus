@@ -69,28 +69,32 @@ function ProjectNode({
                         {project.name}
                     </span>
                 )}
-                <button
-                    className="ml-3 px-2 py-1 text-sm text-green-700 bg-green-100 rounded hover:bg-green-200"
-                    onClick={e => {
-                        e.stopPropagation();
-                        onAdd(project.id);
-                    }}
-                    title="Add subproject"
-                >
-                    +
-                </button>
-                <button
-                    className="ml-2 px-2 py-1 text-sm text-red-700 bg-red-100 rounded hover:bg-red-200"
-                    onClick={e => {
-                        e.stopPropagation();
-                        if (window.confirm("정말로 이 프로젝트를 삭제하시겠습니까?")) {
-                            onDelete(project.id);
-                        }
-                    }}
-                    title="Delete"
-                >
-                    ×
-                </button>
+                {!project.is_inbox && (
+                    <>
+                        <button
+                            className="ml-3 px-2 py-1 text-sm text-green-700 bg-green-100 rounded hover:bg-green-200"
+                            onClick={e => {
+                                e.stopPropagation();
+                                onAdd(project.id);
+                            }}
+                            title="Add subproject"
+                        >
+                            +
+                        </button>
+                        <button
+                            className="ml-2 px-2 py-1 text-sm text-red-700 bg-red-100 rounded hover:bg-red-200"
+                            onClick={e => {
+                                e.stopPropagation();
+                                if (window.confirm("정말로 이 프로젝트를 삭제하시겠습니까?")) {
+                                    onDelete(project.id);
+                                }
+                            }}
+                            title="Delete"
+                        >
+                            ×
+                        </button>
+                    </>
+                )}
             </div>
             {project.children && project.children.length > 0 && (
                 <ul>
@@ -131,4 +135,19 @@ export default function ProjectTree({ projects, onSelect, selectedId, onAdd, onD
             </ul>
         </div>
     );
+}
+
+export function buildProjectTree(
+    projects: Project[],
+    parentId: string | null = null
+): (Project & { children?: Project[] })[] {
+    return projects
+        .filter(p => {
+            const pParentId = p.parent_id != null ? String(p.parent_id) : null;
+            return pParentId === parentId;
+        })
+        .map(p => ({
+            ...p,
+            children: buildProjectTree(projects, String(p.id)),
+        }));
 }

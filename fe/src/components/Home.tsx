@@ -60,7 +60,10 @@ export default function Home() {
     const name = window.prompt("새 프로젝트 이름을 입력하세요", "New Project");
     if (!name) return;
     try {
-      const newProject = await createProject({ name, parent_id: parentId ?? undefined });
+      const newProject = await createProject({
+        name,
+        parent_id: parentId || undefined
+      });
       setProjects((prev) => [...prev, newProject]);
       setSelectedProject(newProject.id);
     } catch (e: any) {
@@ -69,7 +72,6 @@ export default function Home() {
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (!window.confirm("정말로 이 프로젝트를 삭제하시겠습니까?")) return;
     try {
       await deleteProject(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));

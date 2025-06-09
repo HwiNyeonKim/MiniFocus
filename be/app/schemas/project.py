@@ -7,6 +7,7 @@ class ProjectBase(BaseModel):
     name: str
     description: str | None = None
     is_inbox: bool = False
+    parent_id: int | None = None
 
 
 class ProjectCreate(ProjectBase):

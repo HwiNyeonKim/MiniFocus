@@ -76,6 +76,11 @@ async def delete_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
+    if project.is_inbox:
+        raise HTTPException(
+            status_code=400, detail="Cannot delete Inbox project"
+        )
+
     await db.delete(project)
     await db.commit()
     return {"message": "Project deleted successfully"}
