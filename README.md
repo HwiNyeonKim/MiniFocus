@@ -57,17 +57,21 @@ OmniFocus의 라이트 버전을 만들어보는 것을 목표로 한다.
 ## 3. 프로젝트 구조
 
 ```bash
-TodoPractice/
+minifocus/
 ├── fe/                    # React 프론트엔드
 │   ├── src/              # React 소스 코드
 │   │   ├── components/   # React 컴포넌트
-│   │   ├── hooks/       # 커스텀 훅
-│   │   ├── pages/       # 페이지 컴포넌트
-│   │   ├── services/    # API 서비스
-│   │   └── types/       # TypeScript 타입
-│   ├── public/          # 정적 파일
-│   ├── Dockerfile      # 프론트엔드 Docker 설정
-│   └── package.json    # npm 의존성
+│   │   ├── services/     # API 서비스 함수
+│   │   ├── types/        # TypeScript 타입 정의
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   └── index.css
+│   ├── tree.ts           # 트리 변환 유틸
+│   ├── .env              # 환경변수 파일
+│   ├── Dockerfile        # 프론트엔드 Docker 설정
+│   ├── nginx.conf        # nginx 프록시 설정
+│   ├── package.json      # npm 의존성
+│   └── vite.config.ts    # Vite 설정
 │
 ├── be/                   # FastAPI 백엔드
 │   ├── app/             # 백엔드 애플리케이션
@@ -98,12 +102,11 @@ TodoPractice/
 
 ## 4. 실행 방법
 
-# TODO: 실행 방법 업데이트
 1. 프로젝트 클론
 
    ```bash
-   git clone <repository-url>
-   cd <project-name>
+   git clone https://github.com/HwiNyeonKim/MiniFocus.git
+   cd minifocus
    ```
 
 1. 로컬 개발 환경 설정
