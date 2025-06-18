@@ -15,9 +15,12 @@ async def lifespan(app: FastAPI):
     """Lifespan event handler."""
     # Startup
     await init_db()
+
     async with AsyncSessionLocal() as session:
         await create_inbox_project(session)
+
     yield
+
     # Shutdown
     pass
 
