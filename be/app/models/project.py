@@ -1,35 +1,26 @@
-"""Project model."""
-
-from datetime import datetime
-
-from sqlalchemy import Boolean, Column, DateTime
-from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Enum as SQLEnum,
+    ForeignKey,
+    Integer,
+    String,
+)
 from sqlalchemy.orm import relationship
 
-from app.db.base_class import Base
-from app.models.status import Status
+from .base import Base
+from .status import Status
 
 
 class Project(Base):
     """Project model."""
 
-    __tablename__ = "projects"
-
-    id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False)
     description = Column(String, nullable=True)
     status = Column(SQLEnum(Status), default=Status.TODO, nullable=False)
     is_flagged = Column(Boolean, default=False, nullable=False)
     is_inbox = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(
-        DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-        nullable=False,
-    )
+
     parent_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
 
-    # Relationships
-    action_items = relationship("ActionItem", back_populates="project")
+    tasks = relationship("Task", back_populates="project")

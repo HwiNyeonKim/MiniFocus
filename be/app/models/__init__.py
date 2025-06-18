@@ -2,7 +2,7 @@
 Database models package.
 """
 from .base import Base
-from .item import ActionItem
 from .project import Project
+from .task import Task
 
-__all__ = ["ActionItem", "Base", "Project"]
+__all__ = ["Base", "Project", "Task"]

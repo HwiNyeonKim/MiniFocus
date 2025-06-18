@@ -6,7 +6,7 @@ from sqlalchemy.orm import DeclarativeBase
 
 
 class Base(DeclarativeBase):
-    """Base class for all models."""
+    """Base class for all database models."""
 
     @declared_attr
     def __tablename__(cls) -> str:
@@ -14,10 +14,7 @@ class Base(DeclarativeBase):
         return cls.__name__.lower()
 
     id = Column(Integer, primary_key=True, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=datetime.now, nullable=False)
     updated_at = Column(
-        DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-        nullable=False,
+        DateTime, default=datetime.now, onupdate=datetime.now, nullable=False
     )
