@@ -1,6 +1,4 @@
-from sqlalchemy import Boolean, Column
-from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from .base import Base
@@ -12,7 +10,7 @@ class Project(Base):
 
     name = Column(String, index=True, nullable=False)
     description = Column(String, nullable=True)
-    status = Column(SQLEnum(Status), default=Status.TODO, nullable=False)
+    status = Column(Enum(Status), default=Status.TODO, nullable=False)
     is_flagged = Column(Boolean, default=False, nullable=False)
     is_inbox = Column(Boolean, default=False, nullable=False)
 
@@ -22,3 +20,6 @@ class Project(Base):
     )
 
     tasks = relationship("Task", back_populates="project")
+
+    owner_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    owner = relationship("User", back_populates="projects")
