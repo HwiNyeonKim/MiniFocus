@@ -1,20 +1,19 @@
-"""Database session configuration."""
-from typing import AsyncGenerator
-
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import declarative_base
 
 from app.config.settings import settings
 
 # Create async engine
 engine = create_async_engine(
-    settings.SQLALCHEMY_DATABASE_URI,
-    echo=settings.DB_ECHO_LOG,
-    future=True,
+    settings.SQLALCHEMY_DATABASE_URI, echo=settings.DB_ECHO_LOG, future=True
 )
 
 # Create async session factory
-AsyncSessionLocal = sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
@@ -25,7 +24,7 @@ AsyncSessionLocal = sessionmaker(
 Base = declarative_base()
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_db():
     """Get database session."""
     async with AsyncSessionLocal() as session:
         try:
