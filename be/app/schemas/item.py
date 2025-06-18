@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from app.models.item import ItemStatus
 
 
+# TODO: project 내용이 섞여 있다. Task 관련 내용만 남기기
 class ProjectBase(BaseModel):
     """Base Project schema."""
 
