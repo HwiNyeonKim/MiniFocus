@@ -38,14 +38,14 @@ export async function deleteProject(id: string): Promise<void> {
 }
 
 // 할 일(Task)
-export async function fetchItems(project_id: string): Promise<Task[]> {
-  const res = await fetch(`${API_BASE}/projects/${project_id}/items/`);
-  if (!res.ok) throw new Error("Failed to fetch items");
+export async function fetchTasks(project_id: string): Promise<Task[]> {
+  const res = await fetch(`${API_BASE}/projects/${project_id}/tasks/`);
+  if (!res.ok) throw new Error("Failed to fetch tasks");
   return res.json();
 }
 
-export async function createItem(project_id: string, data: Partial<Task>): Promise<Task> {
-  const res = await fetch(`${API_BASE}/projects/${project_id}/items/`, {
+export async function createTask(project_id: string, data: Partial<Task>): Promise<Task> {
+  const res = await fetch(`${API_BASE}/projects/${project_id}/tasks/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -54,8 +54,8 @@ export async function createItem(project_id: string, data: Partial<Task>): Promi
   return res.json();
 }
 
-export async function updateItem(project_id: string, id: string, data: Partial<Task>): Promise<Task> {
-  const res = await fetch(`${API_BASE}/projects/${project_id}/items/${id}`, {
+export async function updateTask(project_id: string, id: string, data: Partial<Task>): Promise<Task> {
+  const res = await fetch(`${API_BASE}/projects/${project_id}/tasks/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -64,8 +64,8 @@ export async function updateItem(project_id: string, id: string, data: Partial<T
   return res.json();
 }
 
-export async function deleteItem(project_id: string, id: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/projects/${project_id}/items/${id}`, {
+export async function deleteTask(project_id: string, id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/projects/${project_id}/tasks/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Failed to delete task");

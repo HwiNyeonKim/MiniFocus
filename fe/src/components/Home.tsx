@@ -9,10 +9,10 @@ import {
   createProject,
   updateProject,
   deleteProject,
-  fetchItems,
-  createItem,
-  updateItem,
-  deleteItem,
+  fetchTasks,
+  createTask,
+  updateTask,
+  deleteTask,
 } from "../services/api";
 import { buildProjectTree } from "../../tree";
 
@@ -39,7 +39,7 @@ export default function Home() {
   useEffect(() => {
     if (!selectedProject) return;
     setLoading(true);
-    fetchItems(selectedProject)
+    fetchTasks(selectedProject)
       .then(setTasks)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -50,7 +50,7 @@ export default function Home() {
     const interval = setInterval(() => {
       if (!selectedProject) return;
       fetchProjects().then(setProjects);
-      fetchItems(selectedProject).then(setTasks);
+      fetchTasks(selectedProject).then(setTasks);
     }, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [selectedProject]);
@@ -66,8 +66,8 @@ export default function Home() {
       });
       setProjects((prev) => [...prev, newProject]);
       setSelectedProject(newProject.id);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     }
   };
 
@@ -76,8 +76,8 @@ export default function Home() {
       await deleteProject(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));
       if (selectedProject === id) setSelectedProject("");
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     }
   };
 
@@ -87,8 +87,8 @@ export default function Home() {
       setProjects((prev) =>
         prev.map((p) => (p.id === id ? { ...p, name: updated.name } : p))
       );
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     }
   };
 
@@ -96,33 +96,33 @@ export default function Home() {
   const handleAddTask = async (title: string, dueDate?: string) => {
     if (!selectedProject) return;
     try {
-      const newTask = await createItem(selectedProject, { title, due_date: dueDate });
+      const newTask = await createTask(selectedProject, { title, due_date: dueDate });
       setTasks((prev) => [...prev, newTask]);
       setTimeout(() => addTaskInputRef.current?.focus(), 0);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     }
   };
 
   const handleDeleteTask = async (id: string) => {
     if (!selectedProject) return;
     try {
-      await deleteItem(selectedProject, id);
+      await deleteTask(selectedProject, id);
       setTasks((prev) => prev.filter((t) => t.id !== id));
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     }
   };
 
   const handleEditTask = async (id: string, title: string) => {
     if (!selectedProject) return;
     try {
-      const updated = await updateItem(selectedProject, id, { title });
+      const updated = await updateTask(selectedProject, id, { title });
       setTasks((prev) =>
         prev.map((t) => (t.id === id ? { ...t, title: updated.title } : t))
       );
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     }
   };
 
@@ -131,12 +131,12 @@ export default function Home() {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
     try {
-      const updated = await updateItem(selectedProject, id, { completed: !task.completed });
+      const updated = await updateTask(selectedProject, id, { completed: !task.completed });
       setTasks((prev) =>
         prev.map((t) => (t.id === id ? { ...t, completed: updated.completed } : t))
       );
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unknown error");
     }
   };
 
