@@ -16,7 +16,9 @@ async def init_db():
 async def create_inbox_project(db: AsyncSession):
     """Create inbox project if it doesn't exist."""
     # Create default user if not exists
-    result = await db.execute(select(User).filter(User.email == "admin@example.com"))
+    result = await db.execute(
+        select(User).filter(User.email == "admin@example.com")
+    )
     user = result.scalar_one_or_none()
 
     if not user:
@@ -39,7 +41,7 @@ async def create_inbox_project(db: AsyncSession):
             name="Inbox",
             description="Default inbox project",
             is_inbox=True,
-            owner_id=user.id
+            owner_id=user.id,
         )
         db.add(inbox)
 
