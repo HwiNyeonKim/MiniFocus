@@ -1,4 +1,5 @@
 """Test configuration and fixtures."""
+
 import asyncio
 import logging
 import os
