@@ -16,6 +16,6 @@ class Task(Base):
     is_flagged = Column(Boolean, default=False, nullable=False)
     due_date = Column(DateTime, nullable=True)
     priority = Column(Integer, default=0, nullable=False)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
 
+    project_id = Column(Integer, ForeignKey("project.id"), nullable=False)
     project = relationship("Project", back_populates="tasks")

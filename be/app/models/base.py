@@ -9,7 +9,7 @@ class Base(DeclarativeBase):
     """Base class for all database models."""
 
     @declared_attr
-    def __tablename__(cls) -> str:
+    def __tablename__(cls):
         """Generate __tablename__ automatically."""
         return cls.__name__.lower()
 

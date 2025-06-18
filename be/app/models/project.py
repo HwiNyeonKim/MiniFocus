@@ -16,6 +16,9 @@ class Project(Base):
     is_flagged = Column(Boolean, default=False, nullable=False)
     is_inbox = Column(Boolean, default=False, nullable=False)
 
-    parent_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
+    parent_id = Column(Integer, ForeignKey("project.id"), nullable=True)
+    parent = relationship(
+        "Project", remote_side="Project.id", backref="children"
+    )
 
     tasks = relationship("Task", back_populates="project")

@@ -2,13 +2,14 @@
 import asyncio
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy.sql import text
 
-from alembic import context
 from app.config.settings import settings
-from app.db.base import Base
+from app.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -63,7 +64,14 @@ def do_run_migrations(connection: Connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
+        # Disable foreign key constraints temporarily
+        connection.execute(text("PRAGMA foreign_keys = OFF"))
+
+        # Run migrations
         context.run_migrations()
+
+        # Re-enable foreign key constraints
+        connection.execute(text("PRAGMA foreign_keys = ON"))
 
 
 async def run_async_migrations() -> None:
