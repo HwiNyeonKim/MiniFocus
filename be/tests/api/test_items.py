@@ -1,10 +1,12 @@
 """Test action item API endpoints."""
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.item import ActionItem, ItemStatus
+from app.models.item import ActionItem
 from app.models.project import Project
+from app.models.status import Status
 
 
 @pytest.mark.asyncio
@@ -78,7 +80,7 @@ async def test_list_action_items(
         ActionItem(
             title=f"Test Item {i}",
             description=f"Test Description {i}",
-            status=ItemStatus.TODO,
+            status=Status.TODO,
             priority=i,
             project_id=project.id,
         )
@@ -119,7 +121,7 @@ async def test_get_action_item(
     item = ActionItem(
         title="Test Item",
         description="Test Description",
-        status=ItemStatus.TODO,
+        status=Status.TODO,
         priority=0,
         project_id=project.id,
     )
@@ -159,7 +161,7 @@ async def test_update_action_item(
     item = ActionItem(
         title="Test Item",
         description="Test Description",
-        status=ItemStatus.TODO,
+        status=Status.TODO,
         priority=0,
         project_id=project.id,
     )
@@ -205,7 +207,7 @@ async def test_delete_action_item(
     item = ActionItem(
         title="Test Item",
         description="Test Description",
-        status=ItemStatus.TODO,
+        status=Status.TODO,
         priority=0,
         project_id=project.id,
     )

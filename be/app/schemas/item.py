@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from app.models.item import ItemStatus
+from app.models.status import Status
 
 
 # TODO: project 내용이 섞여 있다. Task 관련 내용만 남기기
@@ -13,7 +13,7 @@ class ProjectBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = None
     due_date: Optional[datetime] = None
-    status: ItemStatus = ItemStatus.TODO
+    status: Status = Status.TODO
     is_flagged: bool = False
     parent_id: Optional[int] = None
 
@@ -56,7 +56,7 @@ class ActionItemBase(BaseModel):
 
     title: str
     description: str | None = None
-    status: ItemStatus = ItemStatus.TODO
+    status: Status = Status.TODO
     is_flagged: bool = False
     due_date: datetime | None = None
     priority: int = 0
@@ -73,7 +73,7 @@ class ActionItemUpdate(BaseModel):
 
     title: str | None = None
     description: str | None = None
-    status: ItemStatus | None = None
+    status: Status | None = None
     is_flagged: bool | None = None
     due_date: datetime | None = None
     priority: int | None = None

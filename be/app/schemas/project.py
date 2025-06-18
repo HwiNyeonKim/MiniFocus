@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from app.models.status import Status
+
 
 class ProjectBase(BaseModel):
     """Base Project schema."""
@@ -8,6 +10,8 @@ class ProjectBase(BaseModel):
     description: str | None = None
     is_inbox: bool = False
     parent_id: int | None = None
+    status: Status = Status.TODO
+    is_flagged: bool = False
 
 
 class ProjectCreate(ProjectBase):
@@ -22,6 +26,8 @@ class ProjectUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
     is_inbox: bool | None = None
+    status: Status | None = None
+    is_flagged: bool | None = None
 
 
 class Project(ProjectBase):
