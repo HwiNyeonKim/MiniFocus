@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Task as TaskModel
 from app.models import Project as ProjectModel
+from app.models import Task as TaskModel
 from app.schemas import Task, TaskCreate, TaskUpdate
 
 from ..dependencies import get_db

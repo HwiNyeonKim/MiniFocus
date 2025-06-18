@@ -7,6 +7,7 @@ from app.models.status import Status
 
 class TaskBase(BaseModel):
     """Base Task schema."""
+
     title: str
     description: str | None = None
     status: Status = Status.TODO
@@ -17,11 +18,13 @@ class TaskBase(BaseModel):
 
 class TaskCreate(TaskBase):
     """Task creation schema."""
+
     pass
 
 
 class TaskUpdate(BaseModel):
     """Task update schema."""
+
     title: str | None = None
     description: str | None = None
     status: Status | None = None
@@ -32,9 +35,11 @@ class TaskUpdate(BaseModel):
 
 class Task(TaskBase):
     """Task response schema."""
+
     id: int
     project_id: int
 
     class Config:
         """Pydantic config."""
+
         from_attributes = True

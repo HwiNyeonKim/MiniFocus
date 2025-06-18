@@ -1,11 +1,6 @@
-from sqlalchemy import (
-    Boolean,
-    Column,
-    Enum as SQLEnum,
-    ForeignKey,
-    Integer,
-    String,
-)
+from sqlalchemy import Boolean, Column
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from .base import Base
