@@ -1,5 +1,6 @@
 from .project import Project, ProjectCreate, ProjectUpdate
 from .task import Task, TaskCreate, TaskUpdate
+from .user import User, UserCreate, UserUpdate
 
 __all__ = [
     "Project",
@@ -8,4 +9,7 @@ __all__ = [
     "Task",
     "TaskCreate",
     "TaskUpdate",
+    "User",
+    "UserCreate",
+    "UserUpdate",
 ]
