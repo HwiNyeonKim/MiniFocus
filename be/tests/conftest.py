@@ -1,20 +1,21 @@
 """Test configuration and fixtures."""
 import asyncio
 import logging
-from typing import AsyncGenerator, Generator
+import os
 
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import text
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
-from app.db.base_class import Base
-from app.db.session import get_db
+from app.api.dependencies import get_db
 from app.main import app
-from app.models.item import ActionItem
-from app.models.project import Project
+from app.models import Base, Project, Task
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,16 +23,17 @@ logger = logging.getLogger(__name__)
 
 # Test database URL
 TEST_DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+TEST_DB_FILE = "./test.db"
 
 # Create async engine for testing
 engine = create_async_engine(
     TEST_DATABASE_URL,
     connect_args={"check_same_thread": False},
-    echo=False,  # 기본적으로 SQL 로깅 비활성화
+    echo=False,
 )
 
 # Create async session factory
-TestingSessionLocal = sessionmaker(
+TestingSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
@@ -39,23 +41,29 @@ TestingSessionLocal = sessionmaker(
 
 
 @pytest.fixture(scope="session")
-def event_loop() -> Generator:
+def event_loop():
     """Create an instance of the default event loop for each test case."""
     loop = asyncio.get_event_loop_policy().new_event_loop()
+
     yield loop
+
     loop.close()
 
 
 @pytest.fixture(scope="session")
-async def test_app() -> FastAPI:
+async def test_app():
     """Create a test instance of the FastAPI application."""
     return app
 
 
 @pytest.fixture(autouse=True)
-async def setup_database() -> AsyncGenerator[None, None]:
+async def setup_database():
     """Set up the test database before each test."""
     logger.info("Setting up test database...")
+
+    # Ensure test.db doesn't exist before tests
+    if os.path.exists(TEST_DB_FILE):
+        os.remove(TEST_DB_FILE)
 
     # Drop all tables first
     async with engine.begin() as conn:
@@ -65,7 +73,7 @@ async def setup_database() -> AsyncGenerator[None, None]:
         # Create all tables
         logger.info("Creating all tables...")
         # Ensure all models are imported and registered with Base.metadata
-        _ = [Project, ActionItem]  # Force model registration
+        _ = [Project, Task]  # Force model registration
         await conn.run_sync(Base.metadata.create_all)
 
         # Verify tables were created
@@ -82,24 +90,29 @@ async def setup_database() -> AsyncGenerator[None, None]:
     logger.info("Cleaning up test database...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+
+    # Remove test.db file after tests
+    if os.path.exists(TEST_DB_FILE):
+        os.remove(TEST_DB_FILE)
+
     logger.info("Test database cleanup complete")
 
 
 @pytest.fixture
-async def test_db() -> AsyncGenerator[AsyncSession, None]:
+async def test_db():
     """Create a test database session."""
     async with TestingSessionLocal() as session:
         # Start a transaction
         await session.begin()
+
         yield session
+
         # Rollback the transaction
         await session.rollback()
 
 
 @pytest.fixture
-async def client(
-    test_app: FastAPI, test_db: AsyncSession
-) -> AsyncGenerator[AsyncClient, None]:
+async def client(test_app: FastAPI, test_db: AsyncSession):
     """Create a test client with a test database session."""
 
     async def override_get_db():
@@ -113,21 +126,3 @@ async def client(
         yield client
 
     test_app.dependency_overrides.clear()
-
-
-def pytest_configure(config):
-    """Configure pytest."""
-    # SQL 로깅을 활성화하는 커맨드 라인 옵션 추가
-    config.addinivalue_line(
-        "markers",
-        "sql_logging: mark test to enable SQL query logging",
-    )
-
-
-@pytest.fixture(autouse=True)
-def _setup_sql_logging(request):
-    """Set up SQL logging based on marker."""
-    if request.node.get_closest_marker("sql_logging"):
-        engine.echo = True
-    else:
-        engine.echo = False
