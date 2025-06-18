@@ -1,10 +1,9 @@
-"""FastAPI application."""
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.endpoints import projects, tasks
+from .api.endpoints import auth, projects, tasks
 from .config.settings import settings
 from .db import AsyncSessionLocal, create_inbox_project, init_db
 
@@ -36,22 +35,28 @@ def create_application() -> FastAPI:
     # Set up CORS middleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=settings.CORS_CREDENTIALS,
-        allow_methods=settings.CORS_METHODS,
-        allow_headers=settings.CORS_HEADERS,
+        allow_origins=settings.BACKEND_CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     # Include routers
     app.include_router(
         tasks.router,
         prefix=settings.API_V1_STR,
-        tags=["items"],
+        tags=["tasks"],
     )
     app.include_router(
         projects.router,
         prefix=settings.API_V1_STR,
         tags=["projects"],
+    )
+
+    app.include_router(
+        auth.router,
+        prefix=settings.API_V1_STR,
+        tags=["auth"],
     )
 
     return app
