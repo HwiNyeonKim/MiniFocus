@@ -22,4 +22,5 @@ async def create_inbox_project(db: AsyncSession):
             name="Inbox", description="Default inbox project", is_inbox=True
         )
         db.add(inbox)
+
         await db.commit()
