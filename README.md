@@ -15,23 +15,23 @@ OmniFocus의 라이트 버전을 만들어보는 것을 목표로 한다.
    - 프로젝트의 제목, 설명, 마감일, 상태, 플래그 상태를 변경할 수 있다.
    - 프로젝트의 계층 구조를 변경할 수 있다.
 
-### 1.2 액션 아이템 관리
+### 1.2 태스크 관리
 
-1. 사용자는 새로운 액션 아이템을 생성할 수 있다.
-   - 액션 아이템은 제목, 설명, 마감일, 상태, 플래그 상태를 가진다.
-   - 액션 아이템은 프로젝트나 다른 액션 아이템의 하위 항목이 될 수 있다.
-   - 프로젝트가 지정되지 않은 액션 아이템은 자동으로 'Inbox' 프로젝트에 할당된다.
-   - 액션 아이템은 삭제할 수 있다.
+1. 사용자는 새로운 태스크를 생성할 수 있다.
+   - 태스크는 제목, 설명, 마감일, 상태, 플래그 상태를 가진다.
+   - 태스크는 프로젝트에 속할 수 있다.
+   - 프로젝트가 지정되지 않은 태스크는 자동으로 'Inbox' 프로젝트에 할당된다.
+   - 태스크는 삭제할 수 있다.
 
-2. 사용자는 기존 액션 아이템을 수정할 수 있다.
-   - 액션 아이템의 제목, 설명, 마감일, 상태, 플래그 상태를 변경할 수 있다.
-   - 액션 아이템의 계층 구조를 변경할 수 있다.
+2. 사용자는 기존 태스크를 수정할 수 있다.
+   - 태스크의 제목, 설명, 마감일, 상태, 플래그 상태를 변경할 수 있다.
+   - 태스크의 소속 프로젝트를 변경할 수 있다.
 
 ### 1.3 특별 프로젝트
 
 1. 'Inbox' 프로젝트
    - Default Project로 삭제 불가능하다.
-   - 프로젝트가 지정되지 않은 모든 액션 아이템이 여기에 할당된다.
+   - 프로젝트가 지정되지 않은 모든 태스크가 여기에 할당된다.
 
 ## 2. 기술 스택
 
@@ -46,6 +46,7 @@ OmniFocus의 라이트 버전을 만들어보는 것을 목표로 한다.
 - Python
 - FastAPI
 - SQLAlchemy (with SQLite)
+- Alembic (DB Migrations)
 - Poetry (의존성 관리)
 - pytest
 - Docker
@@ -58,46 +59,48 @@ OmniFocus의 라이트 버전을 만들어보는 것을 목표로 한다.
 
 ```bash
 minifocus/
-├── fe/                    # React 프론트엔드
-│   ├── src/              # React 소스 코드
-│   │   ├── components/   # React 컴포넌트
-│   │   ├── services/     # API 서비스 함수
-│   │   ├── types/        # TypeScript 타입 정의
-│   │   ├── App.tsx
-│   │   ├── main.tsx
-│   │   └── index.css
-│   ├── tree.ts           # 트리 변환 유틸
-│   ├── .env              # 환경변수 파일
-│   ├── Dockerfile        # 프론트엔드 Docker 설정
-│   ├── nginx.conf        # nginx 프록시 설정
-│   ├── package.json      # npm 의존성
-│   └── vite.config.ts    # Vite 설정
+├── fe/                    # React Frontend. Skip for now.
 │
 ├── be/                   # FastAPI 백엔드
+│   ├── alembic/         # DB Migrations
+│   │   ├── versions/    # Migration files
+│   │   └── env.py       # Alembic environment configuration
+│   │
 │   ├── app/             # 백엔드 애플리케이션
 │   │   ├── api/        # API 엔드포인트
 │   │   │   ├── endpoints/
-│   │   │   │   ├── items.py    # Action Item API
-│   │   │   │   └── projects.py # Project API
-│   │   │   └── deps.py        # API 의존성
-│   │   ├── config/       # 설정 관련 파일
-│   │   │   └── settings.py      # 환경 설정
-│   │   ├── db/         # 데이터베이스
-│   │   │   ├── base.py        # SQLAlchemy 설정
-│   │   │   └── session.py     # DB 세션
-│   │   ├── models/     # DB 모델
-│   │   │   ├── item.py        # Action Item 모델
-│   │   │   └── project.py     # Project 모델
-│   │   └── schemas/    # Pydantic 스키마
-│   │       ├── item.py        # Action Item 스키마
+│   │   │   │   ├── tasks.py     # Task API
+│   │   │   │   └── projects.py  # Project API
+│   │   │   └── dependencies.py  # API dependencies
+│   │   │
+│   │   ├── config/     # 설정 관련 파일
+│   │   │   └── settings.py     # 환경 설정
+│   │   │
+│   │   ├── db/        # 데이터베이스
+│   │   │   └── session.py      # DB 세션
+│   │   │
+│   │   ├── models/    # DB 모델
+│   │   │   ├── base.py        # Base 모델
+│   │   │   ├── task.py        # Task 모델
+│   │   │   ├── project.py     # Project 모델
+│   │   │   └── status.py      # Status Enum
+│   │   │
+│   │   └── schemas/   # Pydantic 스키마
+│   │       ├── task.py        # Task 스키마
 │   │       └── project.py     # Project 스키마
-│   ├── tests/          # pytest 테스트
-│   ├── scripts/        # 유틸리티 스크립트
-│   │   └── lint.sh    # 린트 실행 스크립트
-│   ├── Dockerfile     # 백엔드 Docker 설정
-│   └── pyproject.toml # Poetry 의존성 관리
+│   │
+│   ├── tests/         # pytest 테스트
+│   │   ├── api/      # API 테스트
+│   │   └── conftest.py # 테스트 설정
+│   │
+│   ├── scripts/       # 유틸리티 스크립트
+│   │   └── lint.sh   # 린트 실행 스크립트
+│   │
+│   ├── Dockerfile    # 백엔드 Docker 설정
+│   ├── pyproject.toml # Poetry 의존성 관리
+│   └── alembic.ini   # Alembic 설정
 │
-└── docker-compose.yml  # Docker Compose 설정
+└── docker-compose.yaml # Docker Compose 설정
 ```
 
 ## 4. 실행 방법
@@ -109,7 +112,7 @@ minifocus/
    cd minifocus
    ```
 
-1. 로컬 개발 환경 설정
+2. 로컬 개발 환경 설정
 
    각 서비스는 독립적인 Docker 컨테이너에서 실행한다.
 
@@ -135,7 +138,7 @@ minifocus/
    docker compose up --build
    ```
 
-1. 접속
+3. 접속
 
    - Frontend: [http://localhost:3000](http://localhost:3000)
    - Backend API: [http://localhost:8000](http://localhost:8000)
@@ -143,7 +146,7 @@ minifocus/
 
 ## 5. 개발 관련
 
-### 5.1.Docker 컨테이너 관리
+### 5.1. Docker 컨테이너 관리
 
 개발 중 자주 사용하는 Docker 명령어:
 
@@ -169,8 +172,8 @@ docker compose down
 백엔드 코드의 품질을 관리하기 위해 다음 도구들을 사용한다:
 
 1. black: Python 코드 포매터
-1. isort: import 문 정렬
-1. flake8: 코드 린터
+2. isort: import 문 정렬
+3. flake8: 코드 린터
 
 lint 실행:
 
