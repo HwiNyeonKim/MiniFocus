@@ -4,10 +4,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.endpoints import items, projects
-from app.config.settings import settings
-from app.db.init_db import create_inbox_project, init_db
-from app.db.session import AsyncSessionLocal
+from .api.endpoints import projects, tasks
+from .config.settings import settings
+from .db import AsyncSessionLocal, create_inbox_project, init_db
 
 
 @asynccontextmanager
@@ -45,7 +44,7 @@ def create_application() -> FastAPI:
 
     # Include routers
     app.include_router(
-        items.router,
+        tasks.router,
         prefix=settings.API_V1_STR,
         tags=["items"],
     )
