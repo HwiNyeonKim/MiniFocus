@@ -14,8 +14,10 @@ RUN curl -sSL https://install.python-poetry.org | python3 - \
 # Copy poetry configuration files
 COPY pyproject.toml poetry.lock* ./
 
-# Configure poetry to not create a virtual environment inside the container
-RUN poetry config virtualenvs.create false
+# Configure poetry to not create a virtual environment
+RUN poetry config virtualenvs.create false \
+    && poetry config virtualenvs.in-project false \
+    && poetry config virtualenvs.path /tmp/.venv
 
 # Install dependencies
 RUN poetry install --no-interaction --no-ansi
