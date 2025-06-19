@@ -120,16 +120,16 @@ minifocus/
 
    ```bash
    # 백엔드 서비스 빌드 및 실행
-   docker compose build be
-   docker compose up be
+   docker compose build backend
+   docker compose up backend
    ```
 
    - Frontend:
 
    ```bash
    # 프론트엔드 서비스 빌드 및 실행
-   docker compose build fe
-   docker compose up fe
+   docker compose build fronted
+   docker compose up frontend
    ```
 
    - 모든 서비스를 한 번에 실행:
