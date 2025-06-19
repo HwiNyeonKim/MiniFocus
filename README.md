@@ -128,7 +128,7 @@ minifocus/
 
    ```bash
    # 프론트엔드 서비스 빌드 및 실행
-   docker compose build fronted
+   docker compose build frontend
    docker compose up frontend
    ```
 
