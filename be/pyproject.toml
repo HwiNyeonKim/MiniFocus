@@ -6,7 +6,7 @@ authors = ["Your Name <your.email@example.com>"]
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.11"
 fastapi = "^0.110.0"
 uvicorn = "^0.27.1"
 sqlalchemy = {extras = ["asyncio"], version = "^2.0.28"}
@@ -16,6 +16,7 @@ pydantic = {extras = ["email"], version = "^2.6.3"}
 pydantic-settings = "^2.2.1"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+bcrypt = "4.0.1"
 python-multipart = "^0.0.9"
 
 [tool.poetry.group.dev.dependencies]
@@ -32,7 +33,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 79
-target-version = ['py313']
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '\.venv/'
 
@@ -49,7 +50,7 @@ asyncio_mode = "auto"
 pythonpath = "."
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
