@@ -55,7 +55,7 @@ def create_application() -> FastAPI:
 
     app.include_router(
         auth.router,
-        prefix=settings.API_V1_STR,
+        prefix=f"{settings.API_V1_STR}/auth",
         tags=["auth"],
     )
 
