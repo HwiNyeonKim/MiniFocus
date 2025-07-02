@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose.exceptions import JWTError
 from jose.jwt import decode
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.config.settings import settings
 from app.db import AsyncSessionLocal
@@ -44,7 +45,8 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = await db.query(UserModel).filter(UserModel.id == user_id).first()
+    result = await db.execute(select(UserModel).filter(UserModel.id == user_id))
+    user = result.scalar_one_or_none()
     if user is None:
         raise credentials_exception
 

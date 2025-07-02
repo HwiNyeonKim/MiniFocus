@@ -10,7 +10,7 @@ from app.core import (
     get_password_hash,
     verify_password,
 )
-from app.models import User as UserModel
+from app.models import User as UserModel, Project as ProjectModel
 from app.schemas import User, UserCreate, UserUpdate
 
 router = APIRouter()
@@ -39,9 +39,18 @@ async def register(*, db: AsyncSession = Depends(get_db), user_in: UserCreate):
         is_superuser=False,
     )
     db.add(user)
-
     await db.commit()
     await db.refresh(user)
+
+    # Create Inbox project for the new user
+    inbox_project = ProjectModel(
+        name="Inbox",
+        description="Default inbox project for unassigned tasks",
+        is_inbox=True,
+        owner_id=user.id,
+    )
+    db.add(inbox_project)
+    await db.commit()
 
     return user
 
